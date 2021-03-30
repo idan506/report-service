@@ -8,6 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,33 +27,17 @@ public class ReportController {
         return reportService.getAll();
     }
 
-//    @GetMapping("/export")
-//    public ResponseEntity<Report> exportToExcel() throws IOException {
-//        return ResponseEntity.ok(reportService.createReport());
-//    }
-
+    @Scheduled(cron = "0 0 12 1 * ?")
     @GetMapping("/export")
     public ResponseEntity<Report> exportToExcel() throws IOException {
         return ResponseEntity.ok(reportService.createReport());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Resource> downLoadReport(@PathVariable(value = "id") long id, HttpServletResponse response){
+    public ResponseEntity<Resource> downLoadReport(@PathVariable(name = "id") long id, HttpServletResponse response){
 
         Report report = reportService.getReportById(id);
-
         Resource resource = new ByteArrayResource(report.getFile());
-//
-//        response.setContentType("application/octet-stream");
-//
-//        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM");
-//        String currentDateTime = dateFormatter.format(new Date());
-//
-//        String headerKey = "Content-Disposition";
-//        String headerValue = "attachment; filename=ticket_" + currentDateTime + ".xlsx";
-//
-//        response.setHeader(headerKey, headerValue);
-
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + report.getFileName() )

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,26 +33,23 @@ public class ReportService {
     @Autowired
     private ReportConvert convert;
 
-    public List<TicketModel> list() {
-        return ticketApi.list();
-    }
-
     public Report createReport() throws IOException {
 
         ReportEntity report = new ReportEntity();
 
         LocalDate date = LocalDate.now();
-        LocalDate firstDayOflastMonth = LocalDate.of(date.getYear(), date.getMonth(), 1);
-        LocalDate lastDayOflastMonth = LocalDate.of(date.getYear(), date.getMonth(), firstDayOflastMonth.getDayOfMonth());
+        LocalDate firstDayOflastMonth = LocalDate.of(date.getYear(), date.getMonth(), 1).minusMonths(1);
+        LocalDate lastDayOflastMonth = LocalDate.of(firstDayOflastMonth.getYear(), firstDayOflastMonth.getMonth(), firstDayOflastMonth.lengthOfMonth());
 
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM");
         String currentDateTime = dateFormatter.format(new Date());
 
         String fileName = "ticket_" + currentDateTime + ".xlsx";
 
-        List<TicketModel> listTicket = ticketApi.list();
+        List<TicketModel> listTicket = ticketApi.list(firstDayOflastMonth, lastDayOflastMonth);
 
         ExportExcel exportExcel = new ExportExcel(listTicket);
+
         report.setFileName(fileName);
         report.setCreatedDate(new Date());
 
@@ -59,11 +57,6 @@ public class ReportService {
         reportContent.setFile(exportExcel.export());
         report.setFileContent(reportContent);
         report = repository.save(report);
-        return convert.toModel(report);
-    }
-
-    public Report findById(long id){
-        ReportEntity report = repository.findById(id).get();
         return convert.toModel(report);
     }
 
