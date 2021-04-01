@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -69,8 +70,7 @@ public class ExportExcel {
         int rowCount = 1;
 //        CellStyle dateStyle = workbook.createCellStyle();
         CreationHelper creationHelper = workbook.getCreationHelper();
-        short dateFormat = creationHelper.createDataFormat().getFormat("dd-mm-yyyy");
-
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
 
         XSSFFont font = workbook.createFont();
 
@@ -83,12 +83,10 @@ public class ExportExcel {
 
 
             cell = row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-            cell.setCellValue(ticket.getDayOfHire());
-            cell.getCellStyle().setDataFormat(dateFormat);
+            cell.setCellValue(sdf.format(ticket.getDayOfHire()));
 
             cell = row.getCell(2, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-            cell.setCellValue(ticket.getExpirationDate());
-            cell.getCellStyle().setDataFormat(dateFormat);
+            cell.setCellValue(sdf.format(ticket.getExpirationDate()));
 
             cell = row.getCell(3, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
             cell.setCellValue(ticket.getIdUser());
